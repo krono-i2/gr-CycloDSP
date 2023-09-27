@@ -1,0 +1,79 @@
+id: CycloDSP_CycXCorr
+label: Cyclic Cross-Correlation
+category: '[CycloDSP]'
+
+templates:
+  imports: from gnuradio import CycloDSP
+  make: CycloDSP.CycXCorr(${mode}, ${max_lag}, ${lags}, ${alpha}, ${win_len}, ${state}, ${conj})
+
+#  Make one 'parameters' list entry for every parameter you want settable from the GUI.
+#     Keys include:
+#     * id (makes the value accessible as keyname, e.g. in the make entry)
+#     * label (label shown in the GUI)
+#     * dtype (e.g. int, float, complex, byte, short, xxx_vector, ...)
+#     * default
+parameters:
+- id: win_len
+  label: Window length
+  dtype: int
+  default: 1024
+- id: state
+  label: State
+  dtype: complex
+  default: 1
+  hide: 'part'
+- id: conj
+  label: Conjugate
+  dtype: enum
+  options: ['False', 'True']
+- id: mode
+  label: Mode
+  dtype: enum
+  options: ['0', '1']
+  option_labels: ["Set", "Full"]
+- id: max_lag
+  label: Maximum lag
+  dtype: int
+  default: 0
+  hide: ${ ( 'part' if mode == '0' else 'all') }
+- id: alpha
+  label: Cyclic frequencies
+  dtype: real_vector
+  hide: ${ ( 'part' if mode == '0' else 'all') }
+  default: '[0]'
+- id: lags
+  label: Lags
+  dtype: int_vector
+  hide: ${ ( 'part' if mode == '1' else 'all') }
+  default: '[0]'
+#- id: ...
+#  label: ...
+#  dtype: ...
+
+#  Make one 'inputs' list entry per input and one 'outputs' list entry per output.
+#  Keys include:
+#      * label (an identifier for the GUI)
+#      * domain (optional - stream or message. Default is stream)
+#      * dtype (e.g. int, float, complex, byte, short, xxx_vector, ...)
+#      * vlen (optional - data stream vector length. Default is 1)
+#      * optional (optional - set to 1 for optional inputs. Default is 0)
+inputs:
+- label: x
+  domain: stream
+  dtype: complex
+- label: y
+  domain: stream
+  dtype: complex
+#  vlen: ...
+#  optional: ...
+
+outputs:
+- label: out
+  domain: stream
+  dtype: complex
+  vlen: ${ ((2*max_lag+1)*len(alpha) if mode=='0' else win_len*len(lags)) }
+#  optional: ...
+
+#  'file_format' specifies the version of the GRC yml format used in the file
+#  and should usually not be changed.
+file_format: 1
